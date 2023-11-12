@@ -5,26 +5,6 @@ import chess.engine
 from pprint import pprint
 from collections import Counter
 
-
-#Not working
-"""
-def open_rook_files(fen):
-    board = chess.Board(fen)
-    white = 0
-    black = 0
-    for square in chess.SQUARES:
-        piece = board.piece_at(square)
-        if piece and piece.piece_type == chess.ROOK:
-            file = chess.square_file(square)
-            if piece.color == chess.WHITE:
-                if all(board.piece_at(chess.SQUARES[chess.square(file, rank)] is None for rank in range(8))):
-                    white += 1
-            else:
-                if all(board.piece_at(chess.SQUARES[chess.square(file, rank)] is None for rank in range(8))):
-                    black += 1
-    return white, black
-"""
-
 piece_weights = {
     chess.PAWN: 1,
     chess.KING: 1,
@@ -38,14 +18,13 @@ target_squares = [chess.C3, chess.C4, chess.C5, chess.C6,
                   chess.E3, chess.E4, chess.E5, chess.E6,
                   chess.F3, chess.F4, chess.F5, chess.F6]
 
-
 def available_moves(fen):
     board = chess.Board(fen)
-    #Count moves for black
-    white = list(board.generate_legal_moves(not chess.WHITE))
-    white_opponent = len(white)
     #Count moves for white
-    black = list(board.generate_legal_moves(not chess.BLACK))
+    white = list(board.generate_legal_moves(chess.WHITE))
+    white_opponent = len(white)
+    #Count moves for black
+    black = list(board.generate_legal_moves(chess.BLACK))
     black_opponent = len(black)
     return white_opponent, black_opponent
 
