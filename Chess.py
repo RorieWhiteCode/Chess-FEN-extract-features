@@ -109,7 +109,7 @@ def fen_to_board(fen):
                 board_row.append(piece)
         board.append(board_row)
     return board
-
+#This task is for puzzles, first player to play, wins.
 def determine_winner(fen):
     board = chess.Board(fen)
     if board.turn == chess.WHITE:
