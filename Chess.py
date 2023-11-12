@@ -5,6 +5,9 @@ import chess.engine
 from pprint import pprint
 from collections import Counter
 
+
+#King's value is limited to the same scope as a pawn (same action space, same threat ability)
+#Context matters when balancing knight and bishop weights, however in most cases they are equivalent.
 piece_weights = {
     chess.PAWN: 1,
     chess.KING: 1,
@@ -13,6 +16,8 @@ piece_weights = {
     chess.ROOK: 3,
     chess.QUEEN: 4}
 
+
+#Most sensitive squares in the game 
 target_squares = [chess.C3, chess.C4, chess.C5, chess.C6,
                   chess.D3, chess.D4, chess.D5, chess.D6,
                   chess.E3, chess.E4, chess.E5, chess.E6,
@@ -151,7 +156,7 @@ game["White_Rook_Positions"], game["White_Queen_Positions"], game["White_Knight_
 game["Black_Rook_Positions"], game["Black_Queen_Positions"], game["Black_Knight_Positions"], game["Black_King_Positions"], game["Black_Bishop_Positions"] = zip(*game["FEN"].apply(legal_positions))
 game.to_csv("output_dataset.csv", index=False)
 #-------------------------------------------------------------------------------------------------------------
-# Iterate through the rows and find the best move for each FEN
+# Iterate through the games giving the outcomes of each board
 for i, r in game.iterrows():
     fen = r["FEN"]
     winner = r["Winner"]
