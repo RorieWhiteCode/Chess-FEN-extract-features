@@ -1,9 +1,13 @@
+
 import pandas as pd
 import chess
 import chess.engine
 from pprint import pprint
 from collections import Counter
 
+
+#Not working
+"""
 def open_rook_files(fen):
     board = chess.Board(fen)
     white = 0
@@ -19,6 +23,21 @@ def open_rook_files(fen):
                 if all(board.piece_at(chess.SQUARES[chess.square(file, rank)] is None for rank in range(8))):
                     black += 1
     return white, black
+"""
+
+piece_weights = {
+    chess.PAWN: 1,
+    chess.KING: 1,
+    chess.KNIGHT: 2,
+    chess.BISHOP: 2,
+    chess.ROOK: 3,
+    chess.QUEEN: 4}
+
+target_squares = [chess.C3, chess.C4, chess.C5, chess.C6,
+                  chess.D3, chess.D4, chess.D5, chess.D6,
+                  chess.E3, chess.E4, chess.E5, chess.E6,
+                  chess.F3, chess.F4, chess.F5, chess.F6]
+
 
 def available_moves(fen):
     board = chess.Board(fen)
@@ -34,10 +53,6 @@ def centre_count(fen):
     board = chess.Board(fen)
     piece_count = Counter()
     #16 squares within the centre
-    target_squares = [chess.C3, chess.C4, chess.C5, chess.C6,
-                      chess.D3, chess.D4, chess.D5, chess.D6,
-                      chess.E3, chess.E4, chess.E5, chess.E6,
-                      chess.F3, chess.F4, chess.F5, chess.F6]
     for square in target_squares:
         piece = board.piece_at(square)
         if piece is not None:
@@ -46,41 +61,31 @@ def centre_count(fen):
 
 def centre_weighted_value(fen):
     board = chess.Board(fen)
-    piece_weights = {
-        chess.PAWN: 1,
-        chess.KING: 1,
-        chess.KNIGHT: 2,
-        chess.BISHOP: 2,
-        chess.ROOK: 3,
-        chess.QUEEN: 4}
-    weighted_value = 0
-    target_squares = [chess.C3, chess.C4, chess.C5, chess.C6,
-                      chess.D3, chess.D4, chess.D5, chess.D6,
-                      chess.E3, chess.E4, chess.E5, chess.E6,
-                      chess.F3, chess.F4, chess.F5, chess.F6]
+    white = 0
+    black = 0
     for square in target_squares:
         piece = board.piece_at(square)
         if piece is not None:
             piece_value = piece_weights.get(piece.piece_type, 0)
-            weighted_value += piece_value
-    return weighted_value
+            if piece.color == chess.WHITE:
+                white += piece_value
+            else:
+                black += piece_value
+    return white, black
 
 def calculate_weighted_value(fen):
     board = chess.Board(fen)
-    piece_weights = {
-        chess.PAWN: 1,
-        chess.KING: 1,
-        chess.KNIGHT: 2,
-        chess.BISHOP: 2,
-        chess.ROOK: 3,
-        chess.QUEEN: 4}
-    weighted_value = 0
+    white = 0
+    black = 0
     for square in chess.SQUARES:
         piece = board.piece_at(square)
         if piece is not None:
             piece_value = piece_weights.get(piece.piece_type, 0)
-            weighted_value += piece_value
-    return weighted_value
+            if piece.color == chess.WHITE:
+                white += piece_value
+            else:
+                black += piece_value
+    return white, black
 
 def fen_to_piece_count(fen):
     board = chess.Board(fen)
@@ -134,9 +139,9 @@ def legal_positions(fen):
     for piece in chess.PIECE_TYPES:
         moves[piece] = {
             chess.WHITE: [len(list(board.generate_legal_moves(square))) for square in
-                          board.pieces(piece_type, chess.WHITE)],
+                          board.pieces(piece, chess.WHITE)],
             chess.BLACK: [len(list(board.generate_legal_moves(square))) for square in
-                          board.pieces(piece_type, chess.BLACK)]
+                          board.pieces(piece, chess.BLACK)]
         }
     #w = white, b = black, r = rook, B = bishop, k = king, K = knight, p = position
     wrp = sum(moves[chess.ROOK][chess.WHITE])
@@ -156,13 +161,13 @@ def legal_positions(fen):
 game = pd.read_csv("C:\\Users\\User1\\Desktop\\FinalDataset.csv")
 # Determine features
 game["Winner"] = game["FEN"].apply(determine_winner)
-game["Weighted_Value"] = game["FEN"].apply(calculate_weighted_value)
-game["Centre_Weighted_Value"] = game["FEN"].apply(centre_weighted_value)
+game["White_Weighted_Value"], game["Black_Weighted_Value"] = zip(*game["FEN"].apply(calculate_weighted_value))
+game["White_Centre_Weighted_Value"], game["Black_Centre_Weighted_Value"] = zip(*game["FEN"].apply(centre_weighted_value))
 game[["White_King_Safety", "Black_King_Safety"]] = game["FEN"].apply(king_safe).apply(pd.Series)
 game["White_Piece_Count"], game["Black_Piece_Count"] = zip(*game["FEN"].apply(fen_to_piece_count))
 game["White_Center_Piece_Count"], game["Black_Center_Piece_Count"] = zip(*game["FEN"].apply(centre_count))
 game["White_Opponent_Moves"], game["Black_Opponent_Moves"] = zip(*game["FEN"].apply(available_moves))
-game["White_Open_Rook_Files"], game["Black_Open_Rook_Files"] = zip(*game["FEN"].apply(open_rook_files))
+#game["White_Open_Rook_Files"], game["Black_Open_Rook_Files"] = zip(*game["FEN"].apply(open_rook_files))
 game["White_Rook_Positions"], game["White_Queen_Positions"], game["White_Knight_Positions"], game["White_King_Positions"], game["White_Bishop_Positions"], \
 game["Black_Rook_Positions"], game["Black_Queen_Positions"], game["Black_Knight_Positions"], game["Black_King_Positions"], game["Black_Bishop_Positions"] = zip(*game["FEN"].apply(legal_positions))
 game.to_csv("output_dataset.csv", index=False)
@@ -184,6 +189,10 @@ def stockfish_evaluation(fen):
         evaluation = info["score"].relative.score()  # Get the evaluation in centipawns
     return evaluation
 """
+
+
+
+
 
 
 
