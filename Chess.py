@@ -165,6 +165,7 @@ for i, r in game.iterrows():
     pprint(board)
 
 #------------------------------------------------------------------------------------------------------------
+#Can use to try solve the puzzles, solutions usually take 2-3 minutes per move.
 """
 def stockfish_evaluation(fen):
     with chess.engine.SimpleEngine.popen_uci("D:\stockfish\stockfish-windows-x86-64-avx2.exe") as engine:
